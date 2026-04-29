@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Grade Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 24px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 950px;
+      margin: auto;
+      background: white;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    .directions {
+      background: #eef6ff;
+      border-left: 5px solid #2b7de9;
+      padding: 14px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      line-height: 1.45;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card, .assessment {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 16px;
+      background: #fafafa;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+    }
+
+    .assessment {
+      margin: 14px 0;
+      background: white;
+    }
+
+    .assessment-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: 14px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .score-box {
+      background: #eef6ff;
+      border: 1px solid #b8d7ff;
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .results {
+      background: #f1f8e9;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 24px;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .big-grade {
+      font-size: 38px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 9px;
+      text-align: center;
+    }
+
+    th {
+      background: #2b7de9;
+      color: white;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Student Grade Calculator</h1>
+
+    <div class="directions">
+      Enter your current category grades as percentages. Then move the sliders to predict your scores on the remaining assessments.
+      <br><strong>Tests = 80%</strong> of the grade. <strong>LTQs = 20%</strong> of the grade.
+      <br>The lowest grade on any remaining assessment is 50%.
+    </div>
+
+    <div class="input-grid">
+      <div class="card">
+        <label for="currentTestPercent">Current Test Category Grade (%)</label>
+        <input type="number" id="currentTestPercent" min="0" max="100" step="0.01" value="80">
+        <p class="small">Current test category total: 450 points</p>
+      </div>
+
+      <div class="card">
+        <label for="currentLtqPercent">Current LTQ Category Grade (%)</label>
+        <input type="number" id="currentLtqPercent" min="0" max="100" step="0.01" value="80">
+        <p class="small">Current LTQ points already earned before remaining LTQs: 70 points</p>
+      </div>
+    </div>
+
+    <h2>Remaining Assessments</h2>
+
+    <div class="assessment">
+      <div class="assessment-header">
+        <span>Topic 5C Test</span>
+        <span>100 points — Test Category</span>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="topic5CTest" min="50" max="100" value="80">
+        <div class="score-box"><span id="topic5CTestValue">80</span>/100</div>
+      </div>
+    </div>
+
+    <div class="assessment">
+      <div class="assessment-header">
+        <span>Topic 8B Test</span>
+        <span>100 slider points × 0.5 = 50 gradebook points</span>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="topic8BTest" min="50" max="100" value="80">
+        <div class="score-box"><span id="topic8BTestValue">80</span>/100</div>
+      </div>
+    </div>
+
+    <div class="assessment">
+      <div class="assessment-header">
+        <span>8.1 LTQ</span>
+        <span>7 slider points × 1.429 = 10 gradebook points</span>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="ltq81" min="3.5" max="7" step="0.5" value="6">
+        <div class="score-box"><span id="ltq81Value">6</span>/7</div>
+      </div>
+    </div>
+
+    <div class="assessment">
+      <div class="assessment-header">
+        <span>8.2 LTQ</span>
+        <span>11 slider points × 0.909 = 10 gradebook points</span>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="ltq82" min="5.5" max="11" step="0.5" value="9">
+        <div class="score-box"><span id="ltq82Value">9</span>/11</div>
+      </div>
+    </div>
+
+    <div class="assessment">
+      <div class="assessment-header">
+        <span>Final Exam</span>
+        <span>100 points — Test Category</span>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="finalExam" min="50" max="100" value="80">
+        <div class="score-box"><span id="finalExamValue">80</span>/100</div>
+      </div>
+    </div>
+
+    <div class="results" id="results"></div>
+
+    <p class="small">
+      Current percentages are converted to points using 450 current test points and 60 current LTQ points.
+    </p>
+  </div>
+
+  <script>
+    const CURRENT_TEST_POINTS = 450;
+    const CURRENT_LTQ_POINTS = 70;
+
+    const assessments = [
+      {
+        id: "topic5CTest",
+        category: "test",
+        shownPoints: 100,
+        gradebookPoints: 100,
+        multiplier: 1
+      },
+      {
+        id: "topic8BTest",
+        category: "test",
+        shownPoints: 100,
+        gradebookPoints: 50,
+        multiplier: 0.5
+      },
+      {
+        id: "ltq81",
+        category: "ltq",
+        shownPoints: 7,
+        gradebookPoints: 10,
+        multiplier: 1.429
+      },
+      {
+        id: "ltq82",
+        category: "ltq",
+        shownPoints: 11,
+        gradebookPoints: 10,
+        multiplier: 0.909
+      },
+      {
+        id: "finalExam",
+        category: "test",
+        shownPoints: 100,
+        gradebookPoints: 100,
+        multiplier: 1
+      }
+    ];
+
+    function getLetterGrade(percent) {
+      if (percent >= 90) return "A";
+      if (percent >= 80) return "B";
+      if (percent >= 70) return "C";
+      if (percent >= 60) return "D";
+      return "F";
+    }
+
+    function cleanPercent(value) {
+      const number = Number(value);
+      if (isNaN(number)) return 0;
+      return Math.max(0, Math.min(100, number));
+    }
+
+    function calculateGrade() {
+      const currentTestPercent = cleanPercent(document.getElementById("currentTestPercent").value);
+      const currentLtqPercent = cleanPercent(document.getElementById("currentLtqPercent").value);
+
+      let testEarned = CURRENT_TEST_POINTS * currentTestPercent / 100;
+      let testPossible = CURRENT_TEST_POINTS;
+
+      let ltqEarned = CURRENT_LTQ_POINTS * currentLtqPercent / 100;
+      let ltqPossible = CURRENT_LTQ_POINTS;
+
+      for (let i = 0; i < assessments.length; i++) {
+        const a = assessments[i];
+        const slider = document.getElementById(a.id);
+        const valueBox = document.getElementById(a.id + "Value");
+        const rawScore = Number(slider.value);
+        const gradebookScore = rawScore * a.multiplier;
+
+        valueBox.textContent = rawScore;
+
+        if (a.category === "test") {
+          testEarned += gradebookScore;
+          testPossible += a.gradebookPoints;
+        } else {
+          ltqEarned += gradebookScore;
+          ltqPossible += a.gradebookPoints;
+        }
+      }
+
+      const testPercent = testEarned / testPossible * 100;
+      const ltqPercent = ltqEarned / ltqPossible * 100;
+      const overallGrade = testPercent * 0.80 + ltqPercent * 0.20;
+      const letter = getLetterGrade(overallGrade);
+
+      document.getElementById("results").innerHTML =
+        '<div class="big-grade">' + overallGrade.toFixed(2) + '% — ' + letter + '</div>' +
+        '<table>' +
+          '<tr>' +
+            '<th>Category</th>' +
+            '<th>Earned Points</th>' +
+            '<th>Possible Points</th>' +
+            '<th>Category Grade</th>' +
+            '<th>Weight</th>' +
+          '</tr>' +
+          '<tr>' +
+            '<td>Tests</td>' +
+            '<td>' + testEarned.toFixed(2) + '</td>' +
+            '<td>' + testPossible + '</td>' +
+            '<td>' + testPercent.toFixed(2) + '%</td>' +
+            '<td>80%</td>' +
+          '</tr>' +
+          '<tr>' +
+            '<td>LTQs</td>' +
+            '<td>' + ltqEarned.toFixed(2) + '</td>' +
+            '<td>' + ltqPossible + '</td>' +
+            '<td>' + ltqPercent.toFixed(2) + '%</td>' +
+            '<td>20%</td>' +
+          '</tr>' +
+        '</table>';
+    }
+
+    window.onload = function() {
+      document.getElementById("currentTestPercent").oninput = calculateGrade;
+      document.getElementById("currentLtqPercent").oninput = calculateGrade;
+
+      for (let i = 0; i < assessments.length; i++) {
+        document.getElementById(assessments[i].id).oninput = calculateGrade;
+      }
+
+      calculateGrade();
+    };
+  </script>
+</body>
+</html>
