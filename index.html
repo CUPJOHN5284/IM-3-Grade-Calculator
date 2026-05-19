@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IM 3 Final Exam Grade Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 24px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: auto;
+      background: white;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    .directions {
+      background: #eef6ff;
+      border-left: 5px solid #2b7de9;
+      padding: 14px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      line-height: 1.45;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card, .assessment {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 16px;
+      background: #fafafa;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+    }
+
+    .assessment {
+      margin: 14px 0;
+      background: white;
+    }
+
+    .assessment-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: 14px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .score-box {
+      background: #eef6ff;
+      border: 1px solid #b8d7ff;
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .results {
+      background: #f1f8e9;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 24px;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .big-grade {
+      font-size: 38px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 9px;
+      text-align: center;
+    }
+
+    th {
+      background: #2b7de9;
+      color: white;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>IM 3 Final Exam Grade Calculator</h1>
+
+    <div class="directions">
+      Enter your current category grades as percentages. Then move the slider to predict your final exam score.
+      <br><strong>Tests = 80%</strong> of the overall grade. <strong>LTQs = 20%</strong> of the overall grade.
+      <br>Current points before the final exam: <strong>600 test points</strong> and <strong>90 LTQ points</strong>.
+      <br>The final exam is worth <strong>100 points</strong> in the test category.
+      <br>The lowest grade on the final exam is 50%.
+    </div>
+
+    <div class="input-grid">
+      <div class="card">
+        <label for="currentTestPercent">Current Test Category Grade (%)</label>
+        <input type="number" id="currentTestPercent" min="0" max="100" step="0.01" value="80">
+        <p class="small">Current test category total: 600 points</p>
+      </div>
+
+      <div class="card">
+        <label for="currentLtqPercent">Current LTQ Category Grade (%)</label>
+        <input type="number" id="currentLtqPercent" min="0" max="100" step="0.01" value="80">
+        <p class="small">Current LTQ category total: 90 points</p>
+      </div>
+    </div>
+
+    <h2>Final Exam</h2>
+
+    <div class="assessment">
+      <div class="assessment-header">
+        <span>Final Exam</span>
+        <span>100 points — Test Category</span>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="finalExam" min="50" max="100" step="0.5" value="80">
+        <div class="score-box"><span id="finalExamValue">80</span>/100</div>
+      </div>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    const CURRENT_TEST_POINTS = 600;
+    const CURRENT_LTQ_POINTS = 90;
+    const FINAL_EXAM_POINTS = 100;
+
+    function getLetterGrade(percent) {
+      if (percent >= 90) return "A";
+      if (percent >= 80) return "B";
+      if (percent >= 70) return "C";
+      if (percent >= 60) return "D";
+      return "F";
+    }
+
+    function cleanPercent(value) {
+      const number = Number(value);
+      if (isNaN(number)) return 0;
+      return Math.max(0, Math.min(100, number));
+    }
+
+    function calculateGrade() {
+      const currentTestPercent = cleanPercent(document.getElementById("currentTestPercent").value);
+      const currentLtqPercent = cleanPercent(document.getElementById("currentLtqPercent").value);
+      const finalExamScore = Number(document.getElementById("finalExam").value);
+
+      document.getElementById("finalExamValue").textContent = finalExamScore;
+
+      const testEarnedBeforeFinal = CURRENT_TEST_POINTS * currentTestPercent / 100;
+      const testEarnedAfterFinal = testEarnedBeforeFinal + finalExamScore;
+      const testPossibleAfterFinal = CURRENT_TEST_POINTS + FINAL_EXAM_POINTS;
+      const finalTestPercent = testEarnedAfterFinal / testPossibleAfterFinal * 100;
+
+      const ltqEarned = CURRENT_LTQ_POINTS * currentLtqPercent / 100;
+      const finalLtqPercent = ltqEarned / CURRENT_LTQ_POINTS * 100;
+
+      const overallGrade = finalTestPercent * 0.80 + finalLtqPercent * 0.20;
+      const letter = getLetterGrade(overallGrade);
+
+      document.getElementById("results").innerHTML =
+        '<div class="big-grade">' + overallGrade.toFixed(2) + '% — ' + letter + '</div>' +
+        '<table>' +
+          '<tr>' +
+            '<th>Category</th>' +
+            '<th>Earned Points</th>' +
+            '<th>Possible Points</th>' +
+            '<th>Category Grade</th>' +
+            '<th>Weight</th>' +
+          '</tr>' +
+          '<tr>' +
+            '<td>Tests</td>' +
+            '<td>' + testEarnedAfterFinal.toFixed(2) + '</td>' +
+            '<td>' + testPossibleAfterFinal + '</td>' +
+            '<td>' + finalTestPercent.toFixed(2) + '%</td>' +
+            '<td>80%</td>' +
+          '</tr>' +
+          '<tr>' +
+            '<td>LTQs</td>' +
+            '<td>' + ltqEarned.toFixed(2) + '</td>' +
+            '<td>' + CURRENT_LTQ_POINTS + '</td>' +
+            '<td>' + finalLtqPercent.toFixed(2) + '%</td>' +
+            '<td>20%</td>' +
+          '</tr>' +
+        '</table>';
+    }
+
+    window.onload = function() {
+      document.getElementById("currentTestPercent").oninput = calculateGrade;
+      document.getElementById("currentLtqPercent").oninput = calculateGrade;
+      document.getElementById("finalExam").oninput = calculateGrade;
+      calculateGrade();
+    };
+  </script>
+</body>
+</html>
